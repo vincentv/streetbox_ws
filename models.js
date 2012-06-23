@@ -9,7 +9,7 @@ SpotSchema = new mongoose.Schema({
     lat: Number
   },
 
-  adress : {
+  address : {
     street: String,
     zipcode: String,
     city: String
