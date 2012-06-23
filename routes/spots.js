@@ -12,7 +12,8 @@ exports.spots = {}
 exports.spots.get = function(req, res){
     var result = [], query, lat, lon, radius;
 
-    radius = parseFloat(req.param('radius'));
+    limit = parseFloat(req.param('limit'));
+    maxDistance = parseFloat(req.param('maxDistance'));
     lat = parseFloat(req.param('lat'));
     lon = parseFloat(req.param('lon'));
 
@@ -20,15 +21,11 @@ exports.spots.get = function(req, res){
     .find(
         {
             "loc": {
-                "$within": {
-                    "$center": [
-                        [lon, lat]
-                        , radius
-                    ]
-                }
+                "$near": [lon, lat],
+                "$maxDistance": maxDistance
             }
         }
-    );
+    ).limit(limit);
 
     query.exec(function(err, elmts){
         res.send(elmts);
