@@ -2,25 +2,23 @@
 var mongoose = require('mongoose'),
 _ = require('underscore');
 
-mongoose.set('debug', true)
-
 exports.spots = {}
 
 /**
  * Retourne la liste des playlist
 */
 exports.spots.get = function(req, res){
-  var result = [], query, lat, lon, radius;
+  var result = [], model, query, lat, lon, maxDistance, ordered;
 
-  limit = parseFloat(req.param('limit'));
-  maxDistance = parseFloat(req.param('maxDistance'));
   lat = parseFloat(req.param('lat'));
   lon = parseFloat(req.param('lon'));
-  ordered = (_.isUndefined(req.param('ordered'))) ? 1 : parseInt(req.param('ordered'));
+  limit = parseFloat(req.param('limit', 20));
+  maxDistance = parseFloat(req.param('maxDistance', 2 / 111.2));
+  ordered = parseInt(req.param('ordered', 1));
 
+  model = mongoose.model('Spot');
   if (1 === ordered) {
-    query = mongoose.model('Spot')
-    .find(
+    query = model.find(
       {
       "loc": {
         "$near": [lon, lat],
@@ -30,19 +28,13 @@ exports.spots.get = function(req, res){
     );
 
   } else {
-    query = mongoose.model('Spot')
-    .find(
-      {
+    query = model.find({
       "loc": {
         "$within": {
-          "$center": [
-            [lon, lat]
-            , maxDistance
-          ]
+          "$center": [ [lon, lat], maxDistance]
         }
       }
-    }
-    );
+    });
   }
 
   query.limit(limit)
